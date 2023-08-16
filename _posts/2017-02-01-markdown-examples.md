@@ -121,7 +121,7 @@ You can enable MathJax by setting `mathjax: true` on a page or globally in the `
 
 > Note: Begin align does not work without the `fleqn` option in the `_config.yml`.
 
-<img alt="Fine man" src="/assets/images/fineman.jpeg"
+<img alt="Fine man" src="{{site.baseurl}}/assets/images/fineman.jpeg"
     style="float: right; max-width: 40%; margin: 0 0 1em 2em;">
 
 [Euler's formula](https://en.wikipedia.org/wiki/Euler%27s_formula) relates the  complex exponential function to the trigonometric functions.
@@ -166,6 +166,8 @@ Upload an image to the *assets* folder and embed it with `![title](/assets/name.
 
 A wrapper `div` with the class `large` can be used to increase the width of an image or iframe.
 
+<img src="{{site.baseurl}}/assets/images/BH_logo.png" alt="Black Hole 1">
+
 ![Black Hole](/assets/images/BH_logo.png){: width="500"}
 
 <!-- <img alt="Fine man" src="/assets/images/fineman.jpeg"
@@ -180,9 +182,12 @@ This will also work for image resizing
 
 <!-- ![Load](/blog/assets/images/blog/grpc/csharp2.png){:width="100%"} -->
 
+![Black Hole](/contrast/assets/images/BH_logo.png){: width="500"}
+
 ![Flower](https://user-images.githubusercontent.com/4943215/55412447-bcdb6c80-5567-11e9-8d12-b1e35fd5e50c.jpg)
 
 [Flower](https://unsplash.com/photos/iGrsa9rL11o) by Tj Holowaychuk
+
 
 ## Embedded content
 
