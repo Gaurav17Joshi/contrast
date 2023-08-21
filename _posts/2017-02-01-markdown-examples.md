@@ -182,6 +182,8 @@ This will also work for image resizing
 
 <!-- ![Load](/blog/assets/images/blog/grpc/csharp2.png){:width="100%"} -->
 
+<!-- This also works -->
+
 ![Black Hole](/contrast/assets/images/BH_logo.png){: width="500"}
 
 ![Flower](https://user-images.githubusercontent.com/4943215/55412447-bcdb6c80-5567-11e9-8d12-b1e35fd5e50c.jpg)
