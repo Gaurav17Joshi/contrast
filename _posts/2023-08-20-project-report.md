@@ -4,7 +4,7 @@ layout: post
 mathjax: true
 ---
 
-This is a Report for my Summer Open Source Project with the **Stingray** group (member of *Open Astronomy*), as a part of the Google Summer of Code 2023. Below is a detailed description and results of my project 
+This is a Report for my Summer Open Source Project with the **Stingray** group (member of *Open Astronomy*), as a part of the *Google Summer of Code 2023*. Below is a detailed description and results of my project 
 
 > &nbsp; &ensp; &ensp; &ensp; &ensp; &ensp; &ensp; &ensp; &ensp; &ensp; &ensp; &ensp; ["**Quasi Periodic Oscillation detection using Gaussian Processes**"](https://summerofcode.withgoogle.com/programs/2023/projects/SXhGaPQt)
 
@@ -357,7 +357,39 @@ whereby a spinning massive object twists up the surrounding spacetime, strring t
 
 ---
 
-## Challenges
+## Challenges and learnings
+
+> **1)** *Software Development is not only about implementing some algorithm*
+
+I was drawn to this project as it was using cutting edge Bayesian Analysis Methods (a part I like Mathematically) to analyse Extremely violent Events in the Universe (Something I find very interesting). This led me to believe that in this project, I have to write a code to implement the GP and Evidence Calculation Algroithm and use it to analyse some data. 
+
+I could'nt have been more wrong. This project in my opinion was more about making a suitable interface for the user to use the code, and making the code robust enough to handle all the different use cases. Which classes to make, which functions to use, where to give flexibilty and where to Hard Code? These were the questions that I spent the most time answering and I kept on changing my code based on these.
+
+> **2)** *The Importance of Documentation*
+
+While working on this project, I had to use a lot of different libraries and I realised that the documentation for these libraries is not always good (or maybe I am a bit too beginer to not understand obvious things :) ). I had to go through the source code of these libraries to understand how to use them, and I realised that I should write good documentation for my code, so that other people don't have to go through the same trouble.
+
+> **3)** *Code and Compatability*
+
+In any program, we always make some package imports. Now these packages may have been written some time ago, and some times what you want to do with their code is quite different to what the developers had taken into account during the design that it breaks.
+
+This happened to me with JAX while making the windowed likelihood function. The plan was that the whole lightcurve may not have a QPO, and in that case, we will create a window (tmin to tmax), so that we consider that part to have the QPO, and the rest of the part was White Noise. Now, as it happened, Jax is a functional programming language and so it must know the sizes of all the arrays in the computation, but here we were slicing the lightcurve into undeterministic size (tmin and tmax are random variables). 
+
+I had to give up after a lot of tries and documentation searches, showing that people might use your code in very different ways than you had intended. 
+
+> **4)** *The importance of Testing*
+
+The importance of Code Testing has been stressed upon by many developers, and I now have a first hand account of how important it is as any change I would make, however small would definitely break some test cases. This made me realise that your code is a small but complicated part of a big and complicated system, and breakdowns are bound to happen and adequate Testing is the best way to ensure that the system is working as intended.
+
+> **5)** *The Wonderful Open Source Community*
+
+When people think of Open Source they think of Code that is available for all to see, rather than private code, but reality cannot be any more further than that!! Open Source is all about collaboration. I learned this the nice way in this project.
+
+Firstly I was having some difficulty implimenting my conditioned beta priors using Tensorflow Probability distribution and was finding it difficult to find it up in the documentation. So I thought that perhaps, I might get some hints if I ask in the email channel, and guess what, the maintainers not only replied back fast, they gave me a well written explaination, and links for further reference.
+
+Secoundly, I also had to implement some prior functions in the Jaxns prior model, so on the advice of my mentors, I wrote a [issue](https://github.com/Joshuaalbert/jaxns/issues/91) in the library, and this started a very enjoyable interchange between me and the library author . I would ask a question at the night, and when I would wake up I would have a well written reply.
+
+Such experiences with so many amazing people has made realise the real meaning of Open Source, and you bet I will be recipocating all this help to other programmers.
 
 ---
 
@@ -375,13 +407,12 @@ These are the blogs I wrote during the project detailing my work, challenges and
 
 5. [Pull request made](https://gaurav17joshi.github.io/Blogs/2023/07/28/W78.html)
 
-
----
-
-## Open Source Experience
-
 ---
 
 ## Acknowledgements
+
+I would like to end by thanking my Mentors, [Daniela Huppenkothen](https://github.com/dhuppenkothen) and [Matteo Bachetti](https://github.com/matteobachetti), for their encouragement and support during this project. Their patience with my mistakes and offhand solutions to my issues were very helpful in it.
+
+Lastly I would also like to thank the Google Summer of Code program for giving me this opportunity to work on this project and learn so much from it.
 
 ---
