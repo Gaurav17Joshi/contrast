@@ -14,11 +14,11 @@ In the last few Decades, we have seen a huge increase in the number of X-ray tel
 
 The current QPO detection methods implemented in **Stingray** (an Xray TimeSeries Analysis Package) are limited in scope because they are based in the frequency domains. QPO transients are heteroscedastic and non-stationary in nature, which causes a bias in the periodogram methods.
 
-This project deals with adding a Gaussian processes feature that models the time series and performs a sampling search for model hyperparameters. GP's are a Time Domain models and mitigate many shortcomings of frequency domain methods, while also being more flexible and robust. 
+This project deals with adding a Gaussian processes feature that models the time series and performs a sampling search for model hyperparameters. GP's are Time Domain models and mitigate many shortcomings of frequency domain methods, while also being more flexible and robust. 
 
-In this project, I have modified the code by [Moritz Huebner](https://github.com/MoritzThomasHuebner/QPOEstimation) for the the stingray library. The code makes a GPResult Class object which takes a Ligthcurve as input and performs Nested Sampling to calculate Evidences for different Models, given their Prior and Log_likelihood functions (Respective Helper functions being `get_prior` and `get_likelihood`).
+In this project, I have modified the code by [Moritz Huebner](https://github.com/MoritzThomasHuebner/QPOEstimation) for the the stingray library. The code makes a GPResult Class object which takes a Ligthcurve as input and performs Nested Sampling to calculate Evidences for different Models, given their Prior and Log_likelihood functions (Respective Helper functions being `get_prior` and `get_log_likelihood`).
 
-The user essentially can make different GP Models by specifying the parameter priors, kernel types and Mean Types. The evidence can be calculated and compared to find wheather a QPO model fits the data better or a Red Noise Model, strengthening or dissmissing the case for a QPO detection. An [demonstration notebook](https://github.com/Gaurav17Joshi/ProofOfConcept/blob/main/Demonstration/demo2.ipynb) is also provided, and will be added to the Stingray Notebooks repository.
+The user essentially can make different GP Models by specifying the parameter priors, kernel types and Mean Types. The evidence can be calculated and compared to find wheather a QPO model fits the data better or a Red Noise Model, strengthening or dissmissing the case for a QPO detection. A [demonstration notebook](https://github.com/Gaurav17Joshi/ProofOfConcept/blob/main/Demonstration/demo2.ipynb) is also provided, and will be added to the Stingray Notebooks repository.
 
 
 ---
@@ -29,16 +29,16 @@ The user essentially can make different GP Models by specifying the parameter pr
 
 The code can be understood in parallel to its usage:
 
-**1)** Making a GPResult object on the lightcurve which we want to compare the Models on:
+**1)** Making a `GPResult` object on the lightcurve which we want to compare the Models on:
 
 ```python
 from gpmodelling import GPResult
 gpresult = GPResult(Lc = lc)       # Here lc is a stingray lightcurve object
 ```
 
-**2)** Creating a list of parameters in the GP model (kernel + mean function):
+**2)** Creating a list of parameters of the GP model (kernel + mean function):
 
-Any GP Model can be expressed as a kernel and a mean function, with kernel being the covariance function and mean function being the mean of the GP. We can use the already implemented Model list or create on of our own. 
+Any GP Model can be expressed as a kernel and a mean function, with kernel being the covariance function and mean function being the mean of the GP. We can use the already implemented Model list or create one of our own. 
 
 ```python
 from gpmodelling import get_gp_params
@@ -47,7 +47,7 @@ get_gp_params(kernel_type= "RN", mean_type = "gaussian")
 >>> ['log_arn', 'log_crn', 'log_A', 't0', 'log_sig'] # Output
 ```
 
-**3)** Creating a list of priors for the model parameters:
+**3)** Creating a dictionary of priors for the model parameters:
 
 We will create a dictionary of priors for the parameters based on the lightcurve. This dictionary along with the pior list will be fed to the `get_priors` function which will make a `Jaxns` generative prior object (Used for Nested Sampling).
 
@@ -76,8 +76,8 @@ prior_model = get_prior(params_list2, prior_dict)
 Here we will make a log_likelihood function which calculates the $$p(D \| \theta, M)$$ , (probability of data given parameter values and Model). This will be used by the `GPResult` object to calculate the evidence for the model. One can also make their own log_likelihood function, given the arguments are in the same order as the parameters_list.
 
 ```python
-from gpmodelling import get_likelihood
-likelihood_model = get_likelihood(params_list2, kernel_type= "RN", mean_type = "gaussian", 
+from gpmodelling import get_log_likelihood
+likelihood_model = get_log_likelihood(params_list2, kernel_type= "RN", mean_type = "gaussian", 
                                                 Times = times, counts = counts)
 ```
 
@@ -186,7 +186,7 @@ $$
 
 where M_1 and M_2 are the different models that yield the respective evidences. The Bayes factor measures the odds of the underlying data being produced by either model, assuming both models are equally likely to be correct, though it does not measure if the model itself is a good fit to the data.
 
-This is essentially what we are targetting for our evaluation. We take 2 Models, one with a QPO kernel (hense QPO behaviour) and one with only Red Noise and compare the Bayes Facotors of the both Models to produce the data, helping us determine whether the Time Series has a QPO or not. Also, by doing posterior sampling, if the Bayes Factor is high enough, we can get the posterior distribution for the QPO frequency and other parameters which are directly linked to the physics of these events. 
+This is essentially what we are targetting for our evaluation. We take 2 Models, one with a QPO kernel (hense QPO behaviour) and one with only Red Noise and compare the Bayes Facotrs of the both Models to produce the data, helping us determine whether the Time Series has a QPO or not. Also, by doing posterior sampling, if the Bayes Factor is high enough, we can get the posterior distribution for the QPO frequency and other parameters which are directly linked to the physics of these events. 
 
 The models that we are using are Gaussian Process (GP) models which are charachterised entirely by their kernel function and mean function. For example, 
 
@@ -245,16 +245,14 @@ The Video is for the Gamma Ray Burst of GRB 080319B was aimed almost precisely a
   </figcaption>
 </figure>
 
-The cause for the **Short Duration GRB's** ( $$\sim$$ milisecs) is Two Neutron Stars or a Neutron Star and a Black Hole crashing together and Exploding (also known as **Kilonova**). These massive objects while revolving around each other, lose energy by radiatiing away Gravitational Waves (quite literally ripples in Fabric of space time). These stars draw closer and closer to each other for Billions of years and when up close they spin exteremely rapidly. If their combined mass is more than 2.8 Solar masses, they will collapse to form a Black Hole. This Black Hole and Neutronium debri system then proceeds to form an accretion disk and blasting out a GBR. As the material is much more compact, the flash is much shorter. (Credits:  [NASA](https://imagine.gsfc.nasa.gov/science/objects/bursts1.html#:~:text=Two%20types%20of%20GRBs,a%20brand%20new%20black%20hole.))
+The cause for the **Short Duration GRB's** ( $$\sim$$ milisecs) is Two Neutron Stars or a Neutron Star and a Black Hole crashing together and Exploding (also known as **Kilonova**). These massive objects while revolving around each other, lose energy by radiatiing away Gravitational Waves (quite literally ripples in Fabric of space time). These stars draw closer and closer to each other for Billions of years and when up close they spin exteremely rapidly. If their combined mass is more than 2.8 Solar masses, they will collapse to form a Black Hole. This Black Hole and Neutronium debri system then proceeds to form an accretion disk and blasting out a GBR. As the material is much more compact, the flash is much shorter. (Credits:  [NASA](https://imagine.gsfc.nasa.gov/science/objects/bursts1.html#:~:text=Two%20types%20of%20GRBs,a%20brand%20new%20black%20hole.)) (Also, EG: GRB 050328)
 
-(Also, EG: GRB 050328 is it?)
-
-**QPO Flux:** Explainations of the cause for the Quasi Periodic Oscillations in GRB's is a still unexplained mystery. Leading theories use the lense thirring effect, but we are yet to nail down the exact cause for both long and short Range GRB's. 
+**QPO Flux:**  Quasi Periodic Oscillations in GRB's are yet to be confirmed. Experimenters use tools like ours to try and find evidences of QPO's while theorists are try to find possible models which could cause such a behaviour (Leading theories use the lense thirring effect).
 
 (Source: Ziaeepour, H., & Gardner, B. 2011, [Journal of Cosmology and Astroparticle Physics](http://doi.org/10.1088/1475-7516/2011/12/001))
 
 
-GRB detections are rare as they need to be pointed in our direction to be visible to us. They are also very short lived, so we need to be looking at the right place at the right time. Fortunately, we have help from another field of Astronomy, Gravitational Wave Astronomy. These mergers release insane amount of Gravity Waves, which are detected by LIGO and Virgo detectors. 
+GRB detections are rare as they need to be pointed in our direction to be visible to us. They are also very short lived, so we need to be looking at the right place at the right time. Fortunately, we have help from another field of Astronomy, Gravitational Wave Astronomy. These mergers release insane amount of Gravitational Waves, which are detected by LIGO and Virgo detectors. 
 
 These detectors can tell us the direction of the source, which can then be observed by telescopes. This is how we detected the first Neutron Star merger, GW170817, which was also the first time we detected both Gravitational Waves and Electromagnetic Radiation from the same event. (Source: [NASA](https://www.nasa.gov/feature/goddard/2017/nasa-missions-catch-first-light-from-a-gravitational-wave-event)). With more and more Gravitational Wave detectors coming online, we can expect to narrow down their loaction and use both the Electromagnetic and Gravitational Waves data to completely understand the dynamics of these mergers (Also, hopefully uncover new Physics :)).
 
@@ -321,7 +319,7 @@ In a fraction of a secound a Mangnetar can release more energy than the Sun can 
 
 **Solar flares** are sudden, intense bursts of energy and radiation emanating from the Sun's surface. 
 
-The Magnetic Field lines on the Sun's Surface, have a huge amount of energy stored in them. These field lines get tangled up, and if the conditions are right, they can snap creating a gigantic Short circuit. All the energy stored in the field lines is released all at once, creating a Solar Flare. A big solar flare can release as much as 10% of the entire Suns energy output.
+The Magnetic Field lines on the Sun's Surface, have a huge amount of energy stored in them. Often these field lines get tangled up, and if the conditions are right, they can snap creating a gigantic Short circuit. All the energy stored in the field lines is released at once, creating a Solar Flare. A big solar flare can release as much as 10% of the entire Suns energy output.
 
 These eruptions emit a broad spectrum of electromagnetic radiation, including X-rays and ultraviolet light, and also solar material and Neutrinos. Solar flares are classified into different categories based on their strength, with X-class flares being the most powerful. Studying solar flares helps us understand solar activity, space weather, and the dynamic interplay between magnetic fields and plasma on the Sun's surface.
 
@@ -367,11 +365,11 @@ I could'nt have been more wrong. This project in my opinion was more about makin
 
 > **2)** *The Importance of Documentation*
 
-While working on this project, I had to use a lot of different libraries and I realised that the documentation for these libraries is not always good (or maybe I am a bit too beginer to not understand obvious things :) ). I had to go through the source code of these libraries to understand how to use them, and I realised that I should write good documentation for my code, so that other people don't have to go through the same trouble.
+While working on this project, I had to use a lot of different libraries and I realised that the documentation for these libraries is not always good (or maybe I am a bit too begineer level to not understand obvious things :) ). I had to go through the source code of these libraries to understand how to use them, and I realised that I should write good documentation for my code, so that other people don't have to go through the same trouble.
 
 > **3)** *Code and Compatability*
 
-In any program, we always make some package imports. Now these packages may have been written some time ago, and some times what you want to do with their code is quite different to what the developers had taken into account during the design that it breaks.
+In any program, we always make some package imports. Now these packages may have been written some time ago, and some times what you want to do with their code is quite different to what the developers had taken into account during the design, so your code breaks.
 
 This happened to me with JAX while making the windowed likelihood function. The plan was that the whole lightcurve may not have a QPO, and in that case, we will create a window (tmin to tmax), so that we consider that part to have the QPO, and the rest of the part was White Noise. Now, as it happened, Jax is a functional programming language and so it must know the sizes of all the arrays in the computation, but here we were slicing the lightcurve into undeterministic size (tmin and tmax are random variables). 
 
@@ -385,7 +383,7 @@ The importance of Code Testing has been stressed upon by many developers, and I 
 
 When people think of Open Source they think of Code that is available for all to see, rather than private code, but reality cannot be any more further than that!! Open Source is all about collaboration. I learned this the nice way in this project.
 
-Firstly I was having some difficulty implimenting my conditioned beta priors using Tensorflow Probability distribution and was finding it difficult to find it up in the documentation. So I thought that perhaps, I might get some hints if I ask in the email channel, and guess what, the maintainers not only replied back fast, they gave me a well written explaination, and links for further reference.
+Firstly I was having some difficulty implementing my conditioned beta priors using Tensorflow Probability distribution and was finding it difficult to find it up in the documentation. So I thought that perhaps, I might get some hints if I ask in the email channel, and guess what, the maintainers not only replied back fast, they gave me a well written explaination, and links for further reference.
 
 Secoundly, I also had to implement some prior functions in the Jaxns prior model, so on the advice of my mentors, I wrote a [issue](https://github.com/Joshuaalbert/jaxns/issues/91) in the library, and this started a very enjoyable interchange between me and the library author . I would ask a question at the night, and when I would wake up I would have a well written reply.
 
@@ -413,6 +411,6 @@ These are the blogs I wrote during the project detailing my work, challenges and
 
 I would like to end by thanking my Mentors, [Daniela Huppenkothen](https://github.com/dhuppenkothen) and [Matteo Bachetti](https://github.com/matteobachetti), for their encouragement and support during this project. Their patience with my mistakes and offhand solutions to my issues were very helpful in it.
 
-Lastly I would also like to thank the Google Summer of Code program for giving me this opportunity to work on this project and learn so much from it.
+Lastly I would also like to thank the Google Summer of Code program for giving me the opportunity to work on this project and learn so much from it.
 
 ---
